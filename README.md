@@ -7,7 +7,7 @@ Currently, this project is attempting to solve the following two problems using 
 
 Files related specifically to any of these projects are in the corresponding project folder.
 
-#How the solver works
+# How the solver works
 
 ## Input files
 First, you need to specify the parameters and the reactions in the input file (extension `.input`). Example input file:
