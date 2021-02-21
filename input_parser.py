@@ -191,7 +191,7 @@ def parse_table(table_name):
                              f"Each tables must have exactly two columns.")
         first_col.append(float(cols[0]))
         second_col.append(float(cols[1]))
-    return interp1d(first_col, second_col)  # TODO: missing type - linear, cubic, ...
+    return interp1d(first_col, second_col)  # the default is linear interpolation
 
 
 def check_parameters():

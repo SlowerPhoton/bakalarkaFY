@@ -3,7 +3,7 @@ import numpy as np
 import random as rnd
 
 
-def solve(all_species, parameters, reactions):
+def solve(all_species, parameters, reactions, update=None):
     times = []
     values = {species : [] for species in all_species}
 
@@ -29,8 +29,9 @@ def solve(all_species, parameters, reactions):
                 break
 
         parameters = reactions[reaction_index].react(parameters)
-
         time += tau
+        if update is not None:
+            parameters = update(parameters)
         run += 1
 
     return times, values
