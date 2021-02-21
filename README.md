@@ -161,4 +161,9 @@ Now, we can plot the output values of the Monte-Carlo calculation using the
 The third argument of the method specifies the species that we want to plot.
 In this example, we want to plot all three species.
 
- 
+# Missing documentation topics:
+
+* non-constant parameter example
+* specifying custom rates dependant on custom parameters
+* project file description 
+
