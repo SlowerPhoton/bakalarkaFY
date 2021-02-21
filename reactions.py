@@ -1,4 +1,5 @@
 from collections import Counter
+from math import factorial
 
 
 class Reaction:
@@ -16,10 +17,11 @@ class Reaction:
         self.rate_fun = rate_fun
 
     def compute_a(self, parameters):
-        # TODO: must be updated for more complicated instances
-        a = self.rate_fun(None)  # this needs to be updated
+        a = self.rate_fun(parameters)
         for reactant in self.reactants:
-            a *= parameters[reactant]  # doesn't cover non-singular reactants
+            for i in range(self.reactants[reactant]):
+                a *= parameters[reactant] - i
+            a *= 1/factorial(self.reactants[reactant])
         return a
 
     def react(self, parameters):
