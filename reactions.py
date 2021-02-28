@@ -8,6 +8,7 @@ class Reaction:
     rate_fun = None
 
     rate_spec = ""
+    table = None
 
     def __init__(self, reactants, products, rate_fun):
         # convert list to a dictionary, example:

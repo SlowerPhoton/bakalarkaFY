@@ -1,7 +1,10 @@
 time_ini = 0
 time_end = 1.0e-3
-calc_step = 1
+calc_step = 100
 
+ratio = 1
+
+table_file = tables.dat
 
 # Pressure (torr)
 gas_pressure = 100.0
@@ -23,20 +26,19 @@ gas_temperature = 300.0
 
 # (cm^-3)
 e = 1.0e6
-Ar =
 
 #
 # reactions in volume
 #
-e + Ar => e + e + Ar^+         !   table: Ar -> Ar^+
-e + Ar => Ar* + e              !   table: Ar -> Ar*
-Ar* + e => Ar + e              !   table: Ar* -> Ar
-e + Ar* => Ar^+ + e + e        !   table: Ar* -> Ar^+
+e + Ar => e + e + Ar^+         !   table: Ar -> Ar^+ ionization
+e + Ar => Ar* + e              !   table: Ar -> Ar* excitation
+Ar* + e => Ar + e              !   table: inverse excitation
+e + Ar* => Ar^+ + e + e        !   table: Ar* -> Ar^+ ionization
 Ar2^+ + e => Ar* + Ar          !   8.5d-7 * (Te/300.0d0)**(-0.67d0)
 Ar2^+ + Ar => Ar^+ + Ar + Ar   !   6.06d-6 / Tgas * exp(-15130.0d0/Tgas)
-Ar* + Ar* => Ar2^+ + e         !   6.0d-10
+Ar* + Ar* => Ar2^+ + e         !   6.0e-10
 Ar^+ + e + e => Ar  + e        !   8.75d-27 * (Te/11600.0d0)**(-4.5d0)
-Ar* + Ar + Ar  => Ar + Ar + Ar !   1.4d-32
+Ar* + Ar + Ar  => Ar + Ar + Ar !   1.4e-32
 Ar^+ + Ar + Ar  => Ar2^+ + Ar  !   2.25d-31 * (Tgas/300.0d0)**(-0.4d0)
 
 #

@@ -11,6 +11,7 @@ def solve(all_species, parameters, reactions, update=None):
     run = 0
     while time < parameters["time_end"]:
         if run % parameters['calc_step'] == 0:
+            print(run, time)
             for species in all_species:
                 values[species].append(parameters[species])
             times.append(time)

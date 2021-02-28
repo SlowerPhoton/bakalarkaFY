@@ -1,10 +1,6 @@
 from reactions import Reaction
 from scipy.interpolate import interp1d
-
-parameters = {}
-reactions = []
-all_species = set()
-
+import warnings
 
 class InputFileError(Exception):
     """Base class for exceptions in this module."""
@@ -68,7 +64,10 @@ class TableError(Exception):
         """
 
 
-def parse_file(filename):
+def parse_input_file(filename):
+    all_species = set()
+    parameters = {}
+    reactions = []
     with open(filename) as file:
         for line in file.readlines():
             line = line.strip()  # get rid of whitespace L and R
@@ -76,33 +75,36 @@ def parse_file(filename):
                 continue
             if line[0] == "#":  # skip comments
                 continue
-            parse_line(line)
+            parse_line(line, all_species, parameters, reactions)
     check_parameters()  # check for any missing obligatory parameter
     set_default_parameters()  # set other missing parameters to their default values
     return all_species, parameters, reactions
 
 
-def parse_line(line):
+def parse_line(line, all_species, parameters, reactions):
     if '=>' in line:
-        parse_reaction(line)
+        parse_reaction(line, all_species, reactions)
     elif '=' in line:
-        parse_parameter(line)
+        parse_parameter(line, parameters)
     else:
         raise InvalidLine(f"There is a syntax error on line '{line}'. Each line must be empty, start "
                           f"with the hashtag ('#'), set up a parameter or specify a reaction.")
 
 
-def parse_parameter(line):
+def parse_parameter(line, parameters):
     line_split = line.split('=')
     if len(line_split) != 2:
         raise InvalidLine(f"Syntax error on line '{line}': Parameters are set using the '=' equals sign. There can "
                           f"only be one parameter set per one line.")
     parameter = line_split[0].strip()
-    value = float(line_split[1]) if "." in line_split[1] else int(line_split[1])
+    try:
+        value = float(line_split[1]) if "." in line_split[1] else int(line_split[1])
+    except ValueError:
+        value = line_split[1].strip()
     parameters[parameter] = value
 
 
-def parse_reaction(line):
+def parse_reaction(line, all_species, reactions):
     line_split_arrow = line.split('=>')
     if len(line_split_arrow) != 2:
         raise InvalidLine(f"Syntax error on line '{line}': There can only be one reaction per line. In a reaction, "
@@ -116,12 +118,17 @@ def parse_reaction(line):
     right_side = line_split_excl[0]
     rate_spec = line_split_excl[1]
 
-    reaction = Reaction(parse_species(left_side), parse_species(right_side), parse_rate(rate_spec))
+    reaction = Reaction(parse_species(left_side, all_species),
+                        parse_species(right_side, all_species),
+                        parse_rate(rate_spec))
+    # TODO: remove code repetition
     reaction.rate_spec = rate_spec  # remember rate specification for debugging purposes
+    if rate_spec.startswith("table:"):
+        reaction.table = rate_spec[len("table:"):].strip()
     reactions.append(reaction)
 
 
-def parse_species(line):
+def parse_species(line, all_species):
     species = line.split()
     # + can be used as a delimiter but it is unnecessary
     # species must be separated by whitespace
@@ -132,27 +139,29 @@ def parse_species(line):
     return species
 
 
-def parse_rate(rate_spec):
+def parse_rate(rate_spec, ratio=1):
     fun = None
     try:
         num = float(rate_spec)
-        fun = lambda energy: num
+        fun = lambda energy: num*ratio
     except ValueError:
         rate_spec = rate_spec.strip()
         if rate_spec.startswith("table:"):
             table_name = rate_spec[len("table:"):].strip()
-            fun = parse_table(table_name)
+            if len(tables) == 0:
+                parse_tables()
+            fun = parse_table(table_name, ratio=ratio)
         else:
-            raise UnsupportedFeature(f"The rate specification '{rate_spec}' cannot be parsed, because we only support "
-                                     f"constant rates and rates given by a table. You must write the rate function in "
-                                     f"the code yourself and assign it to the corresponding reaction.")
+            warnings.warn(f"The rate specification '{rate_spec}' cannot be parsed, because we only support "
+                          f"constant rates and rates given by a table. You must write the rate function in "
+                          f"the code yourself and assign it to the corresponding reaction.", UserWarning)
     return fun
 
 
 tables = {}
 
 
-def parse_tables():
+def parse_tables(parameters=parameters):
     if "table_file" not in parameters:
         raise MissingObligatoryParameter("Missing parameter 'table_file'. It must be specified before listing "
                                          "reactions.")
@@ -178,9 +187,10 @@ def parse_tables():
                 expecting_new_table = True
             else:
                 table_content.append(line)
+        return tables
 
 
-def parse_table(table_name):
+def parse_table(table_name, ratio=1):
     content = tables[table_name]
     first_col = []
     second_col = []
@@ -188,10 +198,26 @@ def parse_table(table_name):
         cols = line.split()
         if len(cols) != 2:
             raise TableError(f"Syntax error for table '{table_name}' on table row '{line}': "
-                             f"Each tables must have exactly two columns.")
+                             f"Each table row must have exactly two columns.")
         first_col.append(float(cols[0]))
         second_col.append(float(cols[1]))
-    return interp1d(first_col, second_col)  # the default is linear interpolation
+    f = interp1d(first_col, second_col)  # the default is linear interpolation
+    return lambda parameters: f(parameters["EN"]) * ratio
+
+
+def parse_table_custom(table_name):
+    content = tables[table_name]
+    first_col = []
+    second_col = []
+    for line in content:
+        cols = line.split()
+        if len(cols) != 2:
+            raise TableError(f"Syntax error for table '{table_name}' on table row '{line}': "
+                             f"Each table row must have exactly two columns.")
+        first_col.append(float(cols[0]))
+        second_col.append(float(cols[1]))
+    f = interp1d(first_col, second_col)  # the default is linear interpolation
+    return f
 
 
 def check_parameters():
@@ -205,11 +231,35 @@ def set_default_parameters():
     for species in all_species:
         if species not in parameters:
             parameters[species] = 0
-            raise MissingParameter(f"Parameter '{species}' is missing: it is set to 0.")
+            warnings.warn(f"Parameter '{species}' is missing: it is set to 0.", UserWarning)
     if 'time_ini' not in parameters:
         parameters['time_ini'] = 0
-        raise MissingParameter(f"Parameter 'time_ini' is missing: it is set to 0.")
+        warnings.warn(f"Parameter 'time_ini' is missing: it is set to 0.", UserWarning)
     if 'calc_step' not in parameters:
         parameters['calc_step'] = 1
-        raise MissingParameter(f"Parameter 'calc_step' is missing: it is set to 1.")
+        warnings.warn(f"Parameter 'calc_step' is missing: it is set to 1.", UserWarning)
 
+
+def extract_columns(text, cols_to_extract):
+    ret = ""
+    for line in text.splitlines():
+        line = line.strip()
+        if line == "":
+            continue
+        cols = line.split()
+        for col in cols_to_extract:
+            ret += cols[col]
+            ret += "\t"
+        ret += "\n"
+    return ret
+
+
+def get_table_scales(parameters, reactions, tables):
+    table_scales = {}
+    for reaction in reactions:
+        if reaction.table is not None:
+            table_scales[reaction.table] = (sum(reaction.reactants.values()) - 1) * 3
+    for table_name in tables:
+        if table_name in parameters:
+            table_scales[table_name] = parameters[table_name]
+    return table_scales
