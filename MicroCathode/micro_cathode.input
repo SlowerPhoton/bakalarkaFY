@@ -2,6 +2,7 @@ time_ini = 0
 time_end = 1.0e-3
 calc_step = 100
 
+# the ratio only works for table parsing - the parameters must still be scaled by hand
 ratio = 1
 
 table_file = tables.dat

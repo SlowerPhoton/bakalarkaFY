@@ -5,7 +5,7 @@ import random as rnd
 
 def solve(all_species, parameters, reactions, update=None):
     times = []
-    values = {species : [] for species in all_species}
+    values = {species: [] for species in all_species}
 
     time = parameters["time_ini"]
     run = 0

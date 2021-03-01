@@ -8,6 +8,7 @@ class Reaction:
     rate_fun = None
 
     table_name = None
+    ratio = 1
 
     def __init__(self, reactants, products, rate_fun=None):
         # convert list to a dictionary, example:
@@ -16,16 +17,23 @@ class Reaction:
         self.products = Counter(products)
         self.rate_fun = rate_fun
 
-    def scale_rate_fun(self, ratio):
-        self.rate_fun = lambda parameters: self.rate_fun(parameters) * ratio
-
     def compute_a(self, parameters):
-        a = self.rate_fun(parameters)
+        a = self.rate_fun(parameters) * self.ratio
         for reactant in self.reactants:
             for i in range(self.reactants[reactant]):
                 a *= parameters[reactant] - i
             a *= 1/factorial(self.reactants[reactant])
         return a
+
+    def scale(self, parameters, overwrite_ratio=True):
+        if self.rate_fun is None:
+            return
+        scale = (sum(self.reactants.values()) - 1) * 3
+        if self.table_name in parameters:
+            scale = parameters[self.table_name]
+        if overwrite_ratio:
+            self.ratio = 1
+        self.ratio *= parameters["ratio"] ** scale
 
     def react(self, parameters):
         for reactant in self.reactants:
