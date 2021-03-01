@@ -3,15 +3,17 @@ from input_parser import parse_input_file, parse_table
 from plot import plot
 import numpy as np
 
+cm_to_micro = 1e4
+m_to_micro = 1e6
+
 eV_to_K = 1.16045052e4
 q_elem = 1.60217662e-19
 k_B = 1.38064852e-23
+Td_to_Vcm2 = 1e-17
 
 filename = "micro_cathode.input"
 all_species, parameters, reactions, tables = parse_input_file(filename)
 
-cm_to_micro = 1e4
-m_to_micro = 1e6
 
 ########################## rescaling parameters ##########################
 parameters['radius'] *= cm_to_micro
@@ -82,7 +84,8 @@ reactions[12].rate_fun = reaction_surface_rate
 
 # scale the rate functions
 for reaction in reactions:
-    reaction.scale(parameters)
+    # correctly parsed reaction rates are already set: we overwrite them in order to not scale them twice
+    reaction.scale(parameters, overwrite_ratio=True)
 
 
 #############################
@@ -90,15 +93,16 @@ for reaction in reactions:
 #############################
 def update(prmtrs):
     neutral_particles = prmtrs["Ar"] + prmtrs["Ar*"]
-    J = 1.6e-19 * prmtrs['gap_area'] * prmtrs['e'] * mobility(prmtrs['EN']) * 1 / m_to_micro * prmtrs['EN'] * 1e-17
-    prmtrs['EN'] = prmtrs['voltage'] / (prmtrs['gap_length'] + prmtrs['resistance'] * J
-                                                / (prmtrs['EN'] * neutral_particles / 1.0e17 + 1.0e-99)) \
-                       / neutral_particles * 1.0e17
+    J = q_elem * prmtrs['gap_area'] * prmtrs['e'] * mobility(prmtrs['EN']) * 1 / m_to_micro * \
+        prmtrs['EN'] * Td_to_Vcm2 * cm_to_micro ** 2
+    prmtrs['EN'] = prmtrs['voltage'] / (prmtrs['gap_length'] + prmtrs['resistance'] * J /
+                   (prmtrs['EN'] * Td_to_Vcm2 * cm_to_micro ** 2 * neutral_particles + 1.0e-99)) / \
+                   neutral_particles * Td_to_Vcm2 ** -1 * cm_to_micro ** -2
     prmtrs['EN'] = 0.5 * (prmtrs['EN'] + abs(prmtrs['EN']))
     return prmtrs
 
 
 # V  = voltage - resistance * J
 
-times, values = solve(all_species, parameters, reactions, update=update)
-plot(times, values, all_species)
+#times, values = solve(all_species, parameters, reactions, update=update)
+#plot(times, values, all_species)

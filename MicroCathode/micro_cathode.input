@@ -2,8 +2,9 @@ time_ini = 0
 time_end = 1.0e-3
 calc_step = 100
 
-# the ratio only works for table parsing - the parameters must still be scaled by hand
-ratio = 1
+# the ratio only works for table parsing and flat rates - the parameters must still be scaled by hand
+# m to micrometer
+ratio = 1e6
 
 table_file = tables.dat
 

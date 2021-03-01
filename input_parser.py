@@ -70,9 +70,9 @@ def _parse_line(line, parameter_lines, reaction_lines):
     if line[0] == "#":  # skip comments
         return
     if '=>' in line:
-        parameter_lines.append(line)
-    elif '=' in line:
         reaction_lines.append(line)
+    elif '=' in line:
+        parameter_lines.append(line)
     else:
         raise InvalidLine(f"There is a syntax error on line '{line}'. Each line must be empty, start "
                           f"with the hashtag ('#'), set up a parameter or specify a reaction.")
@@ -85,7 +85,7 @@ def _parse_parameter(line, parameters):
                           f"only be one parameter set per one line.")
     parameter = line_split[0].strip()
     try:
-        value = float(line_split[1]) if "." in line_split[1] else int(line_split[1])
+        value = float(line_split[1]) if ("." in line_split[1] or "e" in line_split[1]) else int(line_split[1])
     except ValueError:
         value = line_split[1].strip()
     parameters[parameter] = value
