@@ -65,27 +65,37 @@ class TableError(Exception):
 
 
 def parse_input_file(filename):
-    all_species = set()
-    parameters = {}
-    reactions = []
+    parameter_lines = []
+    reaction_lines = []
     with open(filename) as file:
         for line in file.readlines():
-            line = line.strip()  # get rid of whitespace L and R
-            if line == "":  # skip empty lines
-                continue
-            if line[0] == "#":  # skip comments
-                continue
-            parse_line(line, all_species, parameters, reactions)
-    check_parameters()  # check for any missing obligatory parameter
-    set_default_parameters()  # set other missing parameters to their default values
+            parse_line(line, parameter_lines, reaction_lines)
+
+    parameters = {}
+    for parameter_line in parameter_lines:
+        parse_parameter(parameter_line, parameters)
+    check_parameters(parameters)  # check for any missing obligatory parameter
+
+    tables = parse_tables(parameters)
+    all_species = set()
+    reactions = []
+    for reaction_line in reaction_lines:
+        parse_reaction(reaction_line, all_species, parameters, reactions, tables)
+
+    set_default_parameters(parameters, all_species)  # set other missing parameters to their default values
     return all_species, parameters, reactions
 
 
-def parse_line(line, all_species, parameters, reactions):
+def parse_line(line, parameter_lines, reaction_lines):
+    line = line.strip()  # get rid of whitespace L and R
+    if line == "":  # skip empty lines
+        return
+    if line[0] == "#":  # skip comments
+        return
     if '=>' in line:
-        parse_reaction(line, all_species, reactions)
+        parameter_lines.append(line)
     elif '=' in line:
-        parse_parameter(line, parameters)
+        reaction_lines.append(line)
     else:
         raise InvalidLine(f"There is a syntax error on line '{line}'. Each line must be empty, start "
                           f"with the hashtag ('#'), set up a parameter or specify a reaction.")
@@ -104,7 +114,7 @@ def parse_parameter(line, parameters):
     parameters[parameter] = value
 
 
-def parse_reaction(line, all_species, reactions):
+def parse_reaction(line, all_species, parameters, reactions, tables):
     line_split_arrow = line.split('=>')
     if len(line_split_arrow) != 2:
         raise InvalidLine(f"Syntax error on line '{line}': There can only be one reaction per line. In a reaction, "
@@ -118,13 +128,11 @@ def parse_reaction(line, all_species, reactions):
     right_side = line_split_excl[0]
     rate_spec = line_split_excl[1]
 
-    reaction = Reaction(parse_species(left_side, all_species),
-                        parse_species(right_side, all_species),
-                        parse_rate(rate_spec))
-    # TODO: remove code repetition
-    reaction.rate_spec = rate_spec  # remember rate specification for debugging purposes
-    if rate_spec.startswith("table:"):
-        reaction.table = rate_spec[len("table:"):].strip()
+    reaction = Reaction(parse_species(left_side, all_species), parse_species(right_side, all_species))
+    parse_rate(reaction, rate_spec, parameters)
+    # scale the rate function
+    ratio = get_rate_fun_ratio(reaction.reactants, reaction.table_name, parameters)
+    reaction.rate_fun = lambda prmtrs: reaction.rate_fun(prmtrs)*
     reactions.append(reaction)
 
 
@@ -139,32 +147,34 @@ def parse_species(line, all_species):
     return species
 
 
-def parse_rate(rate_spec, ratio=1):
+def parse_rate(reaction, rate_spec, parameters):
     fun = None
     try:
         num = float(rate_spec)
-        fun = lambda energy: num*ratio
+        fun = lambda prmtrs: num
     except ValueError:
         rate_spec = rate_spec.strip()
         if rate_spec.startswith("table:"):
             table_name = rate_spec[len("table:"):].strip()
-            if len(tables) == 0:
-                parse_tables()
-            fun = parse_table(table_name, ratio=ratio)
+            reaction.table_name = table_name
+            fun = parse_table(table_name)
         else:
             warnings.warn(f"The rate specification '{rate_spec}' cannot be parsed, because we only support "
                           f"constant rates and rates given by a table. You must write the rate function in "
                           f"the code yourself and assign it to the corresponding reaction.", UserWarning)
     return fun
 
+def get_rate_fun_ratio(reactants, table_name, parameters):
+    scale = (sum(reactants.values()) - 1) * 3
+    if table_name in parameters:
+        scale = parameters[table_name]
+    return parameters["ratio"]**scale
 
-tables = {}
 
-
-def parse_tables(parameters=parameters):
+def parse_tables(parameters):
+    tables = {}
     if "table_file" not in parameters:
-        raise MissingObligatoryParameter("Missing parameter 'table_file'. It must be specified before listing "
-                                         "reactions.")
+        return {}
     with open(parameters["table_file"]) as file:
         expecting_new_table = True
         for line in file.readlines():
@@ -187,10 +197,16 @@ def parse_tables(parameters=parameters):
                 expecting_new_table = True
             else:
                 table_content.append(line)
-        return tables
+    return tables
 
 
-def parse_table(table_name, ratio=1):
+def parse_table(table_name, tables, parameters):
+    if table_name not in tables:
+        err_str = f"There is no table {table_name}."
+        if "table_name" not in parameters:
+            err_str += " Maybe you forgot to specify the 'table_name' parameter?"
+        raise TableError(err_str)
+
     content = tables[table_name]
     first_col = []
     second_col = []
@@ -202,7 +218,7 @@ def parse_table(table_name, ratio=1):
         first_col.append(float(cols[0]))
         second_col.append(float(cols[1]))
     f = interp1d(first_col, second_col)  # the default is linear interpolation
-    return lambda parameters: f(parameters["EN"]) * ratio
+    return lambda parameters: f(parameters["EN"])
 
 
 def parse_table_custom(table_name):
@@ -220,14 +236,14 @@ def parse_table_custom(table_name):
     return f
 
 
-def check_parameters():
+def check_parameters(parameters):
     obligatory_parameters = ['time_end']
     for obligatory_parameter in obligatory_parameters:
         if obligatory_parameter not in parameters:
             raise MissingObligatoryParameter(f"Parameter '{obligatory_parameter}' is not specified.")
 
 
-def set_default_parameters():
+def set_default_parameters(parameters, all_species):
     for species in all_species:
         if species not in parameters:
             parameters[species] = 0
@@ -238,8 +254,12 @@ def set_default_parameters():
     if 'calc_step' not in parameters:
         parameters['calc_step'] = 1
         warnings.warn(f"Parameter 'calc_step' is missing: it is set to 1.", UserWarning)
+    if 'ratio' not in parameters:
+        parameters['ratio'] = 1
+        warnings.warn(f"Parameter 'ratio' is missing: it is set to 1.", UserWarning)
 
 
+# TODO: remove when done (just an ad hoc function to prepare table files)
 def extract_columns(text, cols_to_extract):
     ret = ""
     for line in text.splitlines():
@@ -254,12 +274,3 @@ def extract_columns(text, cols_to_extract):
     return ret
 
 
-def get_table_scales(parameters, reactions, tables):
-    table_scales = {}
-    for reaction in reactions:
-        if reaction.table is not None:
-            table_scales[reaction.table] = (sum(reaction.reactants.values()) - 1) * 3
-    for table_name in tables:
-        if table_name in parameters:
-            table_scales[table_name] = parameters[table_name]
-    return table_scales

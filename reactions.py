@@ -7,15 +7,17 @@ class Reaction:
     products = {}
     rate_fun = None
 
-    rate_spec = ""
-    table = None
+    table_name = None
 
-    def __init__(self, reactants, products, rate_fun):
+    def __init__(self, reactants, products, rate_fun=None):
         # convert list to a dictionary, example:
         # ["Ar", "e", "e"] -> {"Ar" : 1, "e" : 2}
         self.reactants = Counter(reactants)
         self.products = Counter(products)
         self.rate_fun = rate_fun
+
+    def scale_rate_fun(self, ratio):
+        self.rate_fun = lambda parameters: self.rate_fun(parameters) * ratio
 
     def compute_a(self, parameters):
         a = self.rate_fun(parameters)
