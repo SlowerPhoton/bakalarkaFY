@@ -5,6 +5,7 @@ import numpy as np
 
 cm_to_micro = 1e4
 m_to_micro = 1e6
+cm_to_m = 1e-2
 
 eV_to_K = 1.16045052e4
 q_elem = 1.60217662e-19
@@ -17,7 +18,8 @@ all_species, parameters, reactions, tables = parse_input_file(filename)
 
 ########################## rescaling parameters ##########################
 parameters['radius'] *= cm_to_micro
-parameters['e'] *= cm_to_micro ** -3
+#parameters['e'] *= cm_to_micro ** -3
+parameters['e'] = 1000
 parameters['gap_length'] *= cm_to_micro
 
 # constants (originally in cm)
@@ -30,6 +32,8 @@ parameters['Ar'] = parameters['gas_density']
 parameters['Ar^+'] = parameters['e']
 parameters['EN'] = parameters['voltage'] / parameters['gap_length'] / parameters['gas_density'] \
                    * 1.0e17 * cm_to_micro ** -2  # this scales the townsend
+# TODO: remove when ready
+parameters['EN'] = 50
 
 E = parse_table("mean energy", tables)
 
@@ -59,7 +63,10 @@ reactions[5].rate_fun = reaction6_rate
 
 
 def reaction8_rate(prmtrs):
-    return 8.75e-27 * (prmtrs["Te"] / 11600.0) ** (-4.5)
+    # TODO: remove when ready
+    # return 8.75e-27 * (prmtrs["Te"] / 11600.0) ** (-4.5)
+    return 1e-25 * cm_to_m**6
+
 
 
 reactions[7].rate_fun = reaction8_rate
@@ -82,6 +89,9 @@ reactions[10].rate_fun = reaction_surface_rate
 reactions[11].rate_fun = reaction_surface_rate
 reactions[12].rate_fun = reaction_surface_rate
 
+# TODO: remove when ready
+reactions = [reactions[0], reactions[7]]
+
 # scale the rate functions
 for reaction in reactions:
     # correctly parsed reaction rates are already set: we overwrite them in order to not scale them twice
@@ -95,6 +105,8 @@ def update(prmtrs):
     neutral_particles = prmtrs["Ar"] + prmtrs["Ar*"]
     J = q_elem * prmtrs['gap_area'] * prmtrs['e'] * mobility(prmtrs['EN']) * 1 / m_to_micro * \
         prmtrs['EN'] * Td_to_Vcm2 * cm_to_micro ** 2
+    # TODO: remove when done
+    J = 0
     prmtrs['EN'] = prmtrs['voltage'] / (prmtrs['gap_length'] + prmtrs['resistance'] * J /
                    (prmtrs['EN'] * Td_to_Vcm2 * cm_to_micro ** 2 * neutral_particles + 1.0e-99)) / \
                    neutral_particles * Td_to_Vcm2 ** -1 * cm_to_micro ** -2
@@ -104,5 +116,5 @@ def update(prmtrs):
 
 # V  = voltage - resistance * J
 
-#times, values = solve(all_species, parameters, reactions, update=update)
-#plot(times, values, all_species)
+times, values = solve(all_species, parameters, reactions, update=update)
+plot(times, values, all_species)

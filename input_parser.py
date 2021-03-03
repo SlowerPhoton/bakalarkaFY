@@ -59,6 +59,7 @@ def parse_input_file(filename):
     for reaction_line in reaction_lines:
         _parse_reaction(reaction_line, all_species, parameters, reactions, tables)
 
+    # TODO: problem with ratio, should precede reaction settings
     _set_default_parameters(parameters, all_species)  # set other missing parameters to their default values
     return all_species, parameters, reactions, tables
 
