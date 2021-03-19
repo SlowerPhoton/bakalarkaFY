@@ -35,9 +35,9 @@ class Reaction:
             self.ratio = 1
         self.ratio *= parameters["ratio"] ** scale
 
-    def react(self, parameters):
+    def react(self, parameters, bulk):
         for reactant in self.reactants:
-            parameters[reactant] -= self.reactants[reactant]
+            parameters[reactant] -= self.reactants[reactant]*bulk
         for product in self.products:
-            parameters[product] += self.products[product]
+            parameters[product] += self.products[product]*bulk
         return parameters

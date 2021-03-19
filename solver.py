@@ -3,7 +3,7 @@ import numpy as np
 import random as rnd
 
 
-def solve(all_species, parameters, reactions, update=None):
+def solve(all_species, parameters, reactions, update=None, bulk=1):
     times = []
     values = {species: [] for species in all_species}
 
@@ -12,7 +12,7 @@ def solve(all_species, parameters, reactions, update=None):
     run = 0
     while time < parameters["time_end"]:
         if run % parameters['calc_step'] == 0:
-            print(run, time, parameters['EN'])
+            print(f"run: {run}, time: {time}, EN: {parameters['EN']}, Ar: {parameters['Ar']}, e: {parameters['e']}")
             for species in all_species:
                 values[species].append(parameters[species])
             times.append(time)
@@ -32,7 +32,7 @@ def solve(all_species, parameters, reactions, update=None):
                 reaction_index = a_cum.index(partial_sum)
                 break
 
-        parameters = reactions[reaction_index].react(parameters)
+        parameters = reactions[reaction_index].react(parameters, bulk)
         time += tau
         if update is not None:
             update(parameters)
