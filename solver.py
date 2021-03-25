@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import random as rnd
 
@@ -24,7 +23,7 @@ def solve(all_species, parameters, reactions, update=None, bulk=1):
         a_cum = [aa / a0 for aa in np.cumsum(a)]
 
         r1 = rnd.uniform(0, 1)
-        tau = 1 / a0 * np.log(1 / r1)
+        tau = 1 / a0 * np.log(1 / r1) * bulk
 
         r2 = rnd.uniform(0, 1)
         for partial_sum in a_cum:

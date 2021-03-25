@@ -4,10 +4,10 @@ from plot import plot
 import numpy as np
 
 
-eV_to_K = 1.16045052e4
+#eV_to_K = 1.16045052e4
 q_elem = 1.60217662e-19
 k_B = 1.38064852e-23
-Td_to_Vcm2 = 1e-17
+#Td_to_Vcm2 = 1e-17
 Td_to_Vm2 = 1e-21
 Vm2_to_Td = 1 / Td_to_Vm2
 
@@ -98,10 +98,9 @@ def update(prmtrs):
     neutral_particles = prmtrs["Ar"] + prmtrs["Ar*"]
     J = q_elem * prmtrs['gap_area'] * prmtrs['e'] * mobility(prmtrs['EN']) * prmtrs['EN'] * Td_to_Vm2
     # TODO: remove when done
-    J = 0
-    prmtrs['EN'] = prmtrs['voltage'] / neutral_particles * Vm2_to_Td / \
-                   (prmtrs['gap_length'] +
-                    prmtrs['resistance'] * J / (prmtrs['EN'] * Td_to_Vm2 * neutral_particles + 1.0e-99))
+    #J = 0
+    prmtrs['EN'] = Vm2_to_Td * prmtrs['voltage'] / neutral_particles / \
+                   (prmtrs['gap_length'] + prmtrs['resistance'] * J / (prmtrs['EN'] * Td_to_Vm2 * neutral_particles))
     prmtrs['EN'] = 0.5 * (prmtrs['EN'] + abs(prmtrs['EN']))
     parameters['Te'] = Te(parameters['EN'])
     return prmtrs

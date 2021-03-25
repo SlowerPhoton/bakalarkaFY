@@ -1,5 +1,5 @@
 time_ini = 0
-time_end = 1.0e-3
+time_end = 1.0e-4
 calc_step = 1000
 
 # the ratio only works for table parsing and flat rates - the parameters must still be scaled by hand
