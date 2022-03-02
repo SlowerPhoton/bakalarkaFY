@@ -2,7 +2,7 @@ from solver import solve
 from input_parser import parse_input_file
 from plot import plot
 
-filename = "2reaction_2.input"
+filename = "2reaction_1.input"
 all_species, parameters, reactions, tables = parse_input_file(filename)
 
 # resize attempt
