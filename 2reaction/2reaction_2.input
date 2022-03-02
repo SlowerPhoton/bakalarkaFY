@@ -1,3 +1,5 @@
+# testing rescaling of volume
+
 time_ini = 0
 time_end = 3e-7
 calc_step = 100
@@ -11,14 +13,10 @@ ratio = 1
 reduced_field = 50.0
 EN = 50.0
 
-e = 1e9
-Ar^+ = 1e9
-Ar = 2.5e17
-
-# e = 1e18
-# Ar^+ = 1e18
-# Ar = 2.5e25
+e = 1e18
+Ar^+ = 1e18
+Ar = 2.5e25
 
 # rates in meters
-Ar + e => e + e + Ar^+      ! 4.87e-24
+Ar + e => e + e + Ar^+      ! 4.87e-18
 e + Ar^+ + Ar => Ar + Ar    ! 1.0e-37

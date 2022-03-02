@@ -1,0 +1,32 @@
+time_ini = 0
+time_end = 1.0e-4
+calc_step = 1000
+
+# the ratio only works for table parsing and flat rates - the parameters must still be scaled by hand
+ratio = 1
+
+table_file = tables.dat
+
+# Gap_length (m)
+gap_length = 4e-3
+
+# Radius (m)
+radius =  4e-3
+
+#  Voltage (V)
+voltage = 1000.0
+
+# Resistance (Ohm)
+resistance = 1.0e5
+
+# (Pascal)
+gas_pressure = 13332.2
+# Kelvin
+gas_temperature = 300.0
+
+# number of electrons in m^3
+e = 1000
+
+
+e + Ar => e + e + Ar^+         !   table: ionization
+Ar^+ + Ar + e => Ar + Ar       !   8.75d-27 * (Te/11600.0d0)**(-4.5d0)

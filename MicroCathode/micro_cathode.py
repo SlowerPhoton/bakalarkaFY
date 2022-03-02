@@ -11,7 +11,7 @@ k_B = 1.38064852e-23
 Td_to_Vm2 = 1e-21
 Vm2_to_Td = 1 / Td_to_Vm2
 
-bulk = 1e18
+bulk = 1e10
 
 filename = "micro_cathode.input"
 all_species, parameters, reactions, tables = parse_input_file(filename)
@@ -26,6 +26,13 @@ parameters['Ar'] = parameters['gas_density']  # Ar: 3.2188255028634424e+24
 parameters['e'] = bulk
 parameters['Ar^+'] = parameters['e']
 parameters['EN'] = parameters['voltage'] / parameters['gap_length'] / parameters['gas_density'] * Vm2_to_Td
+print(parameters['voltage'] / parameters['gap_length'] / parameters['gas_density'] * Vm2_to_Td)
+
+# equilibrium values
+parameters['EN'] = 4
+parameters['Ar^+'] = 1e9
+parameters['Ar2^+'] = 1e11
+parameters['Ar*'] = 1e11
 
 E = parse_table("mean energy", tables)  # mean energy in eV
 
@@ -83,7 +90,8 @@ reactions[11].rate_fun = reaction_surface_rate
 reactions[12].rate_fun = reaction_surface_rate
 
 # TODO: remove when ready
-reactions = [reactions[0], reactions[7]]
+#reactions = [reactions[0], reactions[7]]
+reactions = reactions[:9]
 
 # scale the rate functions
 for reaction in reactions:
@@ -95,6 +103,7 @@ for reaction in reactions:
 # DYNAMIC
 #############################
 def update(prmtrs):
+    return
     neutral_particles = prmtrs["Ar"] + prmtrs["Ar*"]
     J = q_elem * prmtrs['gap_area'] * prmtrs['e'] * mobility(prmtrs['EN']) * prmtrs['EN'] * Td_to_Vm2
     # TODO: remove when done
