@@ -7,7 +7,6 @@ calc_step = 100
 # gas temperature, K
 gas_temperature = 301.0
 
-ratio = 1
 N = 10
 
 # reduced electric field, Td
@@ -18,6 +17,6 @@ e = 1e2
 Ar^+ = 1e2
 Ar = 1e10
 
-# rates in meters
+# rates in meters (equilibrium at 1e4)
 Ar + e => e + e + Ar^+      ! 1e-8
 e + Ar^+ + Ar => Ar + Ar    ! 1e-12

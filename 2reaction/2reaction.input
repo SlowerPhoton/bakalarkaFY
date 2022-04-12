@@ -5,8 +5,7 @@ calc_step = 1
 # gas temperature, K
 gas_temperature = 301.0
 
-ratio = 1
-N = 1
+N = 1e9
 
 # reduced electric field, Td
 reduced_field = 50.0

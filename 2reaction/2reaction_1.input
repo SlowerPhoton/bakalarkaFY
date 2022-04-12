@@ -5,7 +5,7 @@ calc_step = 1
 # gas temperature, K
 gas_temperature = 301.0
 
-ratio = 1
+N = 1
 
 # reduced electric field, Td
 reduced_field = 50.0
@@ -15,6 +15,6 @@ e = 1
 Ar^+ = 1
 Ar = 2.5e7
 
-# rates in micrometers
+# rates in micrometers (equilibrium at 48.7)
 Ar + e => e + e + Ar^+      ! 4.87
 e + Ar^+ + Ar => Ar + Ar    ! 1.0e-1
