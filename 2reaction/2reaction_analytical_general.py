@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from input_parser import parse_input_file
 
-filename = "2reaction_2.input"
+filename = "2reaction_2N.input"
 all_species, parameters, reactions, tables = parse_input_file(filename)
 
 density_ini_ar = parameters['Ar']

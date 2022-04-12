@@ -1,11 +1,12 @@
 time_ini = 0
-time_end = 3e-7
-calc_step = 100
+time_end = 3e7
+calc_step = 1
 
 # gas temperature, K
 gas_temperature = 301.0
 
 ratio = 1
+N = 1
 
 # reduced electric field, Td
 reduced_field = 50.0
@@ -14,10 +15,6 @@ EN = 50.0
 e = 1e9
 Ar^+ = 1e9
 Ar = 2.5e17
-
-# e = 1e18
-# Ar^+ = 1e18
-# Ar = 2.5e25
 
 # rates in meters
 Ar + e => e + e + Ar^+      ! 4.87e-24

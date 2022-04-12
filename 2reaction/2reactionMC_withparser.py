@@ -1,21 +1,21 @@
+import matplotlib.pyplot as plt
+
 from solver import solve
 from input_parser import parse_input_file
-from plot import plot
 
-filename = "2reaction_1.input"
+filename = "2reaction_2N.input"
 all_species, parameters, reactions, tables = parse_input_file(filename)
+parameters['e'] = parameters['Ar^+'] = 1e5
+parameters['Ar'] = 1e10
 
-# resize attempt
-factor = min([parameters[specie] for specie in all_species])
-for specie in all_species:
-    parameters[specie] /= factor
-for reaction in reactions:
-    reaction.ratio *= factor ** (len(reaction.reactants) - 1)
+for N in [100, 500, 1000, 5000]:
+    parameters_copy = parameters.copy()
+    parameters_copy['N'] = N  # sets N manually, so there is no need to parse many input files, differing only in N
+    times, values = solve(all_species, parameters_copy, reactions)
+    plt.plot(times, values['e'], label=f"N = {N}")
 
-times, values = solve(all_species, parameters, reactions, bulk=1)
-
-# undo resizing
-for specie in values:
-    values[specie] = list(map(lambda x: x * factor, values[specie]))
-
-plot(times, values, all_species)
+plt.xlabel("time [s]")
+plt.ylabel("electron concentration")
+plt.title(f"initial electron concentration = {parameters['e']}")
+plt.legend()
+plt.show()
