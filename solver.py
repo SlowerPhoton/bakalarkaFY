@@ -39,7 +39,7 @@ def solve(all_species, parameters, reactions, update=None, bulk=1):
     while time < parameters["time_end"]:
         # only save next timestamp (and concentrations) after calc_step steps
         if run % parameters['calc_step'] == 0:
-            print(f"run: {run}, time: {time}, EN: {parameters['EN']}, Ar: {parameters['Ar']}, e: {parameters['e']}")
+            # print(f"run: {run}, time: {time}, EN: {parameters['EN']}, Ar: {parameters['Ar']}, e: {parameters['e']}")
             for species in all_species:
                 values[species].append(parameters[species])
             times.append(time)
