@@ -52,6 +52,8 @@ def parse_input_file(filename):
         _parse_parameter(parameter_line, parameters)
     _check_obligatory_parameters(parameters)  # check for any missing obligatory parameter
 
+    _set_default_parameters(parameters)  # set other missing parameters to their default values
+
     tables = _parse_tables(parameters)
 
     all_species = set()
@@ -59,8 +61,7 @@ def parse_input_file(filename):
     for reaction_line in reaction_lines:
         _parse_reaction(reaction_line, all_species, parameters, reactions, tables)
 
-    # TODO: problem with ratio, should precede reaction settings
-    _set_default_parameters(parameters, all_species)  # set other missing parameters to their default values
+    _set_missing_species(parameters, all_species)  # unspecified initial concentrations set to 0
     return all_species, parameters, reactions, tables
 
 
@@ -213,11 +214,7 @@ def _check_obligatory_parameters(parameters):
             raise MissingObligatoryParameter(f"Parameter '{obligatory_parameter}' is not specified.")
 
 
-def _set_default_parameters(parameters, all_species):
-    for species in all_species:
-        if species not in parameters:
-            parameters[species] = 0
-            warnings.warn(f"Parameter '{species}' is missing: it is set to 0.", UserWarning)
+def _set_default_parameters(parameters):
     if 'time_ini' not in parameters:
         parameters['time_ini'] = 0
         warnings.warn(f"Parameter 'time_ini' is missing: it is set to 0.", UserWarning)
@@ -227,6 +224,13 @@ def _set_default_parameters(parameters, all_species):
     if 'ratio' not in parameters:
         parameters['ratio'] = 1
         warnings.warn(f"Parameter 'ratio' is missing: it is set to 1.", UserWarning)
+
+
+def _set_missing_species(parameters, all_species):
+    for species in all_species:
+        if species not in parameters:
+            parameters[species] = 0
+            warnings.warn(f"Parameter '{species}' is missing: it is set to 0.", UserWarning)
 
 
 # TODO: remove when done (just an ad hoc function to prepare table files)
