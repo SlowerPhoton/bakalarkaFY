@@ -1,0 +1,22 @@
+# testing updating function
+table_file = tables.dat
+
+time_ini = 0
+time_end = 3
+calc_step = 100
+
+# gas temperature, K
+gas_temperature = 301.0
+
+N = 50
+
+# reduced electric field, Td
+EN = 50.0
+
+e = 1e2
+Ar^+ = 1e2
+Ar = 1e10
+
+# rates in meters
+Ar + e => e + e + Ar^+      ! table: test variable k1
+e + Ar^+ + Ar => Ar + Ar    ! 1e-12
