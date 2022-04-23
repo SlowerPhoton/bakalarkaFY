@@ -2,18 +2,7 @@ import numpy as np
 import random as rnd
 
 
-def bulk_from_N(all_species, parameters):
-    """
-    if the parameter N was specified in the input file, compute the (super)particle concentrations and compute
-    their weights
-    """
-    if 'N' not in parameters:
-        return None
-    weight = min([parameters[specie] for specie in all_species]) / parameters['N']
-    return weight
-
-
-def solve(all_species, parameters, reactions, update=None, bulk=1):
+def solve(all_species, parameters, reactions, update=None, bulk=1, recompute_N=True, main_specie='e'):
     """
     all_species ... is a set of specie names: e.g. {'Ar^+', 'e', 'Ar'}
     parameters ... is a dictionary containing info parsed from the input file, such as time_ini, calc_step, N,
@@ -22,13 +11,12 @@ def solve(all_species, parameters, reactions, update=None, bulk=1):
         as instance of the class Reaction specified in reactions.py)
     bulk ... (now obsolete and possibly will be removed)
         specifies how many particles are processed at once in each iteration (i.e. bulk=2 means the selected
-        reaction is executed twice in each iteration, basically corresponds to particle weight, but the name differs
-        because bulk needs to be an integer
+        reaction is executed twice in each iteration, basically corresponds to uniform particle weight)
     """
 
-    # update concentrations and compute bulk if N specified in parameters
-    weight = bulk_from_N(all_species, parameters)
-    if weight: bulk = weight  # if N not specified, do nothing
+    # compute bulk if N specified in parameters
+    if 'N' in parameters: # if N not specified, do nothing
+        bulk = parameters[main_specie] / parameters['N']
 
     times = []  # this will store the timestamps
     values = {species: [] for species in all_species}  # stores the concentrations per specie for each timestamp
@@ -61,13 +49,21 @@ def solve(all_species, parameters, reactions, update=None, bulk=1):
 
         # sample a time delta
         r1 = rnd.uniform(0, 1)
-        tau = 1 / a0 * np.log(1 / r1) * weight
+        tau = 1 / a0 * np.log(1 / r1) * bulk
         #print("tau=", tau, " for bulk=", bulk, " tau/bulk=", tau/bulk)
         time += tau
 
         # run the update function on the parameters to modify them
         if update is not None:
-            update(parameters)
+            update(parameters, time=time - tau)
         run += 1
+
+        # check if particles need rescaling (N and bulk recomputation)
+        if recompute_N:
+            actual_N = parameters[main_specie] / bulk
+            # if the current number of superparticles differs too much from the original N
+            if actual_N > parameters['N'] * 2 or actual_N < parameters['N'] * 0.5:
+                bulk = parameters[main_specie] / parameters['N']  # rescale to create N superparticles again
+                print(f"bulk change to bulk={bulk}")
 
     return times, values
