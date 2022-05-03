@@ -40,7 +40,8 @@ mobility = parse_table("mobility", tables)  # in 1/m
 
 
 def Te(EN):
-    return 2 / 3 * E(EN) * q_elem / k_B  # scale from eV
+    # return 2 / 3 * E(EN) * q_elem / k_B  # scale from eV
+    return E(EN) * 11_600
 
 parameters['Te'] = Te(parameters['EN'])
 
@@ -52,7 +53,7 @@ def recombination_rate(prmtrs):
 reactions[1].rate_fun = recombination_rate
 
 
-def update(prmtrs):
+def update(prmtrs, time):
     neutral_particles = prmtrs["Ar"] + prmtrs["Ar*"]
     J = q_elem * prmtrs['gap_area'] * prmtrs['e'] * mobility(prmtrs['EN']) * prmtrs['EN'] * Td_to_Vm2
     prmtrs['EN'] = Vm2_to_Td * prmtrs['voltage'] / neutral_particles / \
@@ -61,5 +62,5 @@ def update(prmtrs):
     parameters['Te'] = Te(parameters['EN'])
     return prmtrs
 
-times, values = solve(all_species, parameters, reactions, update=update, bulk=bulk)
+times, values = solve(all_species, parameters, reactions, update=update, recompute_N=False)
 plot(times, values, all_species)

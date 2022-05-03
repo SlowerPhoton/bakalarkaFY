@@ -38,7 +38,8 @@ E = parse_table("mean energy", tables)  # mean energy in eV
 
 
 def Te(EN):
-    return 2 / 3 * E(EN) * q_elem / k_B  # scale from eV
+    # return 2 / 3 * E(EN) * q_elem / k_B  # scale from eV
+    return E(EN) * 11_600
 
 
 parameters['Te'] = Te(parameters['EN'])

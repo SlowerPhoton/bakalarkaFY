@@ -27,6 +27,8 @@ gas_temperature = 300.0
 # number of electrons in m^3
 e = 1000
 
+N = 1000
+
 
 e + Ar => e + e + Ar^+         !   table: ionization
 Ar^+ + Ar + e => Ar + Ar       !   8.75d-27 * (Te/11600.0d0)**(-4.5d0)
