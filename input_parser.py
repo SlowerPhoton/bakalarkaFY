@@ -109,7 +109,6 @@ def _parse_reaction(line, all_species, parameters, reactions, tables):
 
     reaction = Reaction(_parse_species(left_side, all_species), _parse_species(right_side, all_species))
     _parse_rate(reaction, rate_spec, tables, parameters)  # fills attributes rate_fun and table_name
-    reaction.scale(parameters)  # # scale the rate function: using the 'ratio' parameter
     reactions.append(reaction)
 
 
