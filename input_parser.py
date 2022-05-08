@@ -221,9 +221,6 @@ def _set_default_parameters(parameters):
     if 'calc_step' not in parameters:
         parameters['calc_step'] = 1
         warnings.warn(f"Parameter 'calc_step' is missing: it is set to 1.", UserWarning)
-    if 'ratio' not in parameters:
-        parameters['ratio'] = 1
-        warnings.warn(f"Parameter 'ratio' is missing: it is set to 1.", UserWarning)
 
 
 def _set_missing_species(parameters, all_species):
