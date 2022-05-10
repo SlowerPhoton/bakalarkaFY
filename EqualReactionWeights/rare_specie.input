@@ -1,0 +1,21 @@
+time_ini = 0
+time_end = 1
+calc_step = 100
+
+# gas temperature, K
+gas_temperature = 301.0
+
+N = 100
+
+# reduced electric field, Td
+reduced_field = 50.0
+EN = 50.0
+
+e = 1e2
+Ar^+ = 1e2
+Ar = 1e10
+
+# rates in meters (equilibrium at 1e4)
+Ar + e => e + e + Ar^+      ! 1e-8
+e + Ar^+ + Ar => Ar + Ar    ! 1e-12
+e => e(W)                   ! 1e-2
