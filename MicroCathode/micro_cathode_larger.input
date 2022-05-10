@@ -17,15 +17,9 @@ radius =  4e-3
 gas_temperature = 300.0
 
 # initial particle concentrations (in m^3)
-### BONAVENTURA INITIAL CONCENTRATIONS
-# e = 1e12
-# Ar^+ = 1e12
-# Ar = 3.2187760973281406e24
-### MY INITIAL CONCENTRATIONS
-e = 1e3
-Ar^+ = 1e3
-Ar = 1e9
-
+e = 1e12
+Ar^+ = 1e12
+Ar = 3.2187760973281406e20
 
 N = 1e3
 
