@@ -1,15 +1,16 @@
-import matplotlib.pyplot as plt
-from solver import solve_numerical
-from input_parser import parse_input_file, parse_table
-import numpy as np
-import pickle
-
 # ----------------- WORK ON AISA -----------------------------------------
 import sys
 sys.path.insert(0, '/home/xsolar1/bakalarkaFY/')
 sys.path.insert(0, '/home/xsolar1/bakalarkaFY/MicroCathode')
 import os
 os.chdir("/home/xsolar1/bakalarkaFY/MicroCathode")
+
+# ---------------- INCLUDES -------------------------
+import matplotlib.pyplot as plt
+from solver import solve_numerical
+from input_parser import parse_input_file, parse_table
+import numpy as np
+import pickle
 
 # ----------------- PARSE FILE ----------------------------------------------
 
