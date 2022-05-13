@@ -4,6 +4,15 @@ from input_parser import parse_input_file, parse_table
 import numpy as np
 import pickle
 
+# ----------------- WORK ON AISA -----------------------------------------
+import sys
+sys.path.insert(0, 'C:\\Users\\rmnso\\PycharmProjects\\bakalarkaFY')
+sys.path.insert(0, 'C:\\Users\\rmnso\\PycharmProjects\\bakalarkaFY\\MicroCathode')
+import os
+os.chdir("C:\\Users\\rmnso\\PycharmProjects\\bakalarkaFY\\MicroCathode")
+
+# ----------------- PARSE FILE ----------------------------------------------
+
 filename = "micro_cathode_test.input"
 all_species, parameters, reactions, tables = parse_input_file(filename)
 
