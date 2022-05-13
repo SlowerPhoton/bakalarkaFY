@@ -6,10 +6,10 @@ import pickle
 
 # ----------------- WORK ON AISA -----------------------------------------
 import sys
-sys.path.insert(0, '..')
-sys.path.insert(0, '.')
+sys.path.insert(0, '/home/xsolar1/bakalarkaFY/')
+sys.path.insert(0, '/home/xsolar1/bakalarkaFY/MicroCathode')
 import os
-os.chdir(".")
+os.chdir("/home/xsolar1/bakalarkaFY/MicroCathode")
 
 # ----------------- PARSE FILE ----------------------------------------------
 
