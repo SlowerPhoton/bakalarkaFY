@@ -1,3 +1,6 @@
+"""
+Numerical deterministic solver made specifically for the 2reaction test case.
+"""
 from scipy.integrate import solve_ivp
 
 
