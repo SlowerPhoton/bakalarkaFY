@@ -1,5 +1,5 @@
 # testing updating function
-table_file = tables.dat
+table_file = 2reaction/tables.dat
 
 time_ini = 0
 time_end = 3
@@ -13,7 +13,7 @@ N = 50
 # reduced electric field, Td
 EN = 50.0
 
-e = 1e2x`
+e = 1e2
 Ar^+ = 1e2
 Ar = 1e10
 
