@@ -1,3 +1,6 @@
+"""
+Specific deterministic solver for the system specified by rare_specie.input.
+"""
 from scipy.integrate import solve_ivp
 
 
