@@ -1,8 +1,12 @@
+"""
+This file contains utilities for input files (and tables) parsing. Useful methods are:
+ * parse_input_file
+ * parse_table
+"""
+
 from reactions import Reaction
 from scipy.interpolate import interp1d
 import warnings
-
-# TODO: needs documentation
 
 
 class InputFileError(Exception):
@@ -41,6 +45,19 @@ class TableError(Exception):
 
 
 def parse_input_file(filename):
+    """
+    Parses an input file (typically with .input extension).
+
+    filename ... path to the input file
+
+    Returns tuple (all_species, parameters, reactions, tables).
+    all_species ... set of all species participating in the reactions, e.g., {'Ar', 'e', 'Ar*'}
+    parameters ... dictionary storing parameters from the input file
+    reactions ... list of Reaction objects (i.e. reaction[0] corresponds to the first reaction, stored
+        as instance of the class Reaction specified in reactions.py)
+    tables ... dictionary of tables indexed by their names in the table file, each table is then a list of rows
+        empty if no 'table_file' specified
+    """
     parameter_lines = []
     reaction_lines = []
     with open(filename) as file:
@@ -192,6 +209,12 @@ def _parse_table(table_name, tables, parameters):
 
 
 def parse_table(table_name, tables):
+    """
+    Can be used to parse a table from the variable tables produced by the 'parse_input_file' method.
+
+    It returns a function as a linear interpolation of the table. The first column is the input, the second column is
+    the output value of the function.
+    """
     content = tables[table_name]
     first_col = []
     second_col = []
@@ -227,20 +250,3 @@ def _set_missing_species(parameters, all_species):
         if species not in parameters:
             parameters[species] = 0
             warnings.warn(f"Parameter '{species}' is missing: it is set to 0.", UserWarning)
-
-
-# TODO: remove when done (just an ad hoc function to prepare table files)
-def extract_columns(text, cols_to_extract):
-    ret = ""
-    for line in text.splitlines():
-        line = line.strip()
-        if line == "":
-            continue
-        cols = line.split()
-        for col in cols_to_extract:
-            ret += cols[col]
-            ret += "\t"
-        ret += "\n"
-    return ret
-
-
