@@ -1,8 +1,8 @@
-time_ini = 0
+time_ini = 1e-9
 time_end = 1e-3
-calc_step = 1
+calc_step = 1e4
 
-table_file = tables_test.dat
+table_file = tables_simple.dat
 
 # (Pascal)
 gas_pressure = 13332.2
@@ -17,15 +17,9 @@ radius =  4e-3
 gas_temperature = 300.0
 
 # initial particle concentrations (in m^3)
-### BONAVENTURA INITIAL CONCENTRATIONS
-# e = 1e12
-# Ar^+ = 1e12
-# Ar = 3.2187760973281406e24
-### MY INITIAL CONCENTRATIONS
 e = 1e12
 Ar^+ = 1e12
 Ar = 3.2187760973281406e20
-
 
 N = 1e3
 
@@ -36,7 +30,7 @@ N = 1e3
 e + Ar => e + e + Ar^+         !   table: ionization
 e + Ar => Ar* + e              !   table: excitation
 Ar* + e => Ar + e              !   table: inverse excitation
-e + Ar* => Ar^+ + e + e        !   table: Ar* ionization
+e + Ar* => Ar^+ + e + e        !   1.5 * ionization
 
 Ar2^+ + e => Ar* + Ar          !   8.5d-7 * (Te/300.0d0)**(-0.67d0)
 Ar2^+ + Ar => Ar^+ + Ar + Ar   !   2.5259979792525632e-42
