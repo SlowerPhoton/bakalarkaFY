@@ -63,16 +63,12 @@ def solve_generic(selected_params, parameters, reactions, update=None, bulk=1, b
                     out.write(f", {param}: {parameters[param]}")
                 out.write("\n")
                 out.flush()
-            print(f"bulk: {bulk}")
 
         # sample a reaction and let it react
         a = [reaction.compute_a(parameters) for reaction in reactions]
         a0 = sum(a)
         if abs(a0) < eps:
             raise ZeroDivisionError("There is no possible reaction given the particle concentrations.")
-        if any([aa < 0 for aa in a]):  # checks for negative reaction rates implying negative species concentrations
-            raise FloatingPointError(
-                f"negative reaction rate at time={time} and run={run}, a0={a0}, parameters={parameters}")
         a_cum = [aa / a0 for aa in np.cumsum(a)]
 
         # choose the reaction

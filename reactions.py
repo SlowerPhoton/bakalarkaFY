@@ -34,6 +34,7 @@ class Reaction:
         for reactant in self.reactants:
             for i in range(self.reactants[reactant]):
                 a *= parameters[reactant] - i
+        if a < 0: a = 0  # prevent negative transition rates
         return a
 
     def react(self, parameters, bulk):
