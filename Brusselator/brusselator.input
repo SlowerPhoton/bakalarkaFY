@@ -1,0 +1,18 @@
+time_ini = 0
+time_end = 30
+calc_step = 1
+
+# reservoirs (always replenished)
+A = 1
+B = 3
+
+# not replenished
+X = 1
+Y = 1
+E = 0
+D = 0
+
+A => X                  ! 1
+X + X + Y => X + X + X  ! 1q
+B + X => Y + D          ! 1
+X => E                  ! 1
